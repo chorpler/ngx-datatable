@@ -116,13 +116,18 @@ export function forceFillColumnWidths(
   do {
     additionWidthPerColumn = remainingWidth / columnsToResize.length;
     exceedsWindow = contentWidth >= expectedWidth;
+    const totalWidth = columnsToResize.reduce((total, col) => total + col.width, 0);
 
     for (const column of columnsToResize) {
       if (exceedsWindow && allowBleed) {
         column.width = column.$$oldWidth || column.width || defaultColWidth;
       } else {
-        const newSize = (column.width || defaultColWidth) + additionWidthPerColumn;
-
+        // const newSize = (column.width || defaultColWidth) + additionWidthPerColumn;
+        // Distribute the remaining width proportionally to each column based on its initial width
+        const oldSize = column.width || defaultColWidth;
+        const additionalWidthForCol = Math.ceil(oldSize / totalWidth * remainingWidth);
+        const newSize = oldSize + additionalWidthForCol;
+        
         if (column.minWidth && newSize < column.minWidth) {
           column.width = column.minWidth;
           columnsProcessed.push(column);
